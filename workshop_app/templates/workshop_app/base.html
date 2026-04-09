@@ -1,32 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 {% load static %}
 {% load custom_filters %}
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>
         {% block title %}
-            HomePage
-        {% endblock %}
+            FOSSEE Workshop Management Portal
+        {% endblock %} | FOSSEE
     </title>
 
+    <!-- Meta Tags for SEO -->
+    <meta name="description" content="FOSSEE Workshop Management Portal">
+    <meta name="theme-color" content="#2563eb">
+
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="{% static 'workshop_app/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'workshop_app/css/toastr.min.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'workshop_app/css/font-awesome.css' %}" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    
+    <!-- Custom Base CSS (Enhanced) -->
+    <link rel="stylesheet" href="{% static 'workshop_app/css/base.css' %}" type="text/css"/>
+
+    <!-- JavaScript Libraries - Head -->
     <script src="{% static 'workshop_app/js/jquery-3.4.1.min.js' %}"></script>
-    <script src="{% static 'workshop_app/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'workshop_app/js/popper.min.js' %}"></script>
-    <script src="{% static 'workshop_app/js/toastr.min.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
-
     {% block extra-dependencies %}
     {% endblock %}
-
-    <link rel="stylesheet" href="{% static 'workshop_app/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'workshop_app/css/toastr.min.css' %}">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'workshop_app/css/base.css' %}" type="text/css"/>
-    <link rel="stylesheet" href="{% static 'workshop_app/css/font-awesome.css' %}" type="text/css"/>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
 
     {% block extra-custom-scripts %}
     {% endblock %}
@@ -35,88 +41,124 @@
 
 <body>
 {% block header %}
-    <nav class="navbar navbar-dark navbar-expand-lg bg-dark fixed-top">
-        {% if user.is_authenticated %}
-        <a class="navbar-brand text-white" href="{% url 'workshop_app:index' %}">FOSSEE Workshops</a>
-        {% else %}
-        <a class="navbar-brand text-white" href="{{request.scheme}}://{{request.get_host}}">FOSSEE Workshops</a>
-        {% endif %}
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="/">
-                        Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{% url 'statistics_app:public' %}">
-                        Workshop Statistics
-                    </a>
-                </li>
-            </ul>
+    <nav class="navbar navbar-dark navbar-expand-lg fixed-top">
+        <div class="container-lg">
             {% if user.is_authenticated %}
-            <ul class="navbar-nav mr-auto">
-                {% if request.user|has_group:"instructor" %}
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{% url 'statistics_app:team' %}">
-                        Team Statistics
-                    </a>
-                </li>
-                {% endif %}
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{% url 'workshop_app:workshop_status_instructor' %}">
-                        Workshop Status
-                    </a>
-                </li>
-                {% if not request.user|has_group:"instructor" %}
+            <a class="navbar-brand" href="{% url 'workshop_app:index' %}">
+                <i class="fas fa-graduation-cap"></i> FOSSEE Workshops
+            </a>
+            {% else %}
+            <a class="navbar-brand" href="{{request.scheme}}://{{request.get_host}}">
+                <i class="fas fa-graduation-cap"></i> FOSSEE Workshops
+            </a>
+            {% endif %}
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'workshop_app:propose_workshop' %}">
-                            Propose Workshop
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i> Home
                         </a>
                     </li>
-                {% endif %}
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{% url 'workshop_app:workshop_type_list' %}">
-                        Workshop Types
-                    </a>
-                </li>
-            </ul>
-            <div class="my-2 my-lg-0">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                           <span class="material-icons" style="vertical-align: middle">account_circle</span>
-                            <p style="display: inline; vertical-align: middle">
-                                {{user.get_full_name|title}}
-                            </p>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'statistics_app:public' %}">
+                            <i class="fas fa-chart-bar"></i> Statistics
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="{% url 'workshop_app:view_own_profile' %}">Profile</a>
-                            <a class="dropdown-item" href="{% url 'password_change' %}">
-                                 Change Password
+                    </li>
+                    {% if user.is_authenticated %}
+                        {% if request.user|has_group:"instructor" %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'statistics_app:team' %}">
+                                <i class="fas fa-users"></i> Team Stats
                             </a>
-                            <a class="dropdown-item" href="{% url 'workshop_app:logout' %}">Logout</a>
-                        </div>
-                    </li>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'workshop_app:workshop_status_instructor' %}">
+                                <i class="fas fa-list-check"></i> Status
+                            </a>
+                        </li>
+                        {% if not request.user|has_group:"instructor" %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'workshop_app:propose_workshop' %}">
+                                    <i class="fas fa-plus-circle"></i> Propose
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'workshop_app:workshop_type_list' %}">
+                                <i class="fas fa-book"></i> Types
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                               <i class="fas fa-user-circle"></i>
+                               <span class="d-none d-md-inline">{{user.get_full_name|title}}</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="{% url 'workshop_app:view_own_profile' %}">
+                                    <i class="fas fa-user"></i> Profile
+                                </a>
+                                <a class="dropdown-item" href="{% url 'password_change' %}">
+                                    <i class="fas fa-lock"></i> Change Password
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'workshop_app:logout' %}">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
-            {% endif %}
         </div>
     </nav>
 {% endblock %}
 
-<div class="base-content">
+<main class="base-content">
     {% block content %}
-        <h1>Base Template Content. Please override me</h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Base Template Content. Please override me
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endblock %}
-</div>
+</main>
 
+<!-- JavaScript Libraries - Footer -->
+<script src="{% static 'workshop_app/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'workshop_app/js/popper.min.js' %}"></script>
+<script src="{% static 'workshop_app/js/toastr.min.js' %}"></script>
+
+<!-- Notification Script -->
 <script>
+    // Configure Toastr
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
     {% if messages %}
         {% for message in messages %}
             toastr[{% if message.tags %} "{{ message.tags }}" {% else %} "info" {% endif %}]("{{ message }}");
@@ -125,11 +167,15 @@
 </script>
 
 </body>
+
 <footer class="footer">
     {% block footer %}
-       <div class="container">
-           Developed by FOSSEE group, IIT Bombay
-       </div> 
+        <div class="container-lg">
+            <p class="mb-0">
+                <i class="fas fa-code"></i> Developed by <strong>FOSSEE</strong> group, IIT Bombay
+            </p>
+        </div> 
     {% endblock %}
 </footer>
+
 </html>
