@@ -1,50 +1,250 @@
 {% extends 'workshop_app/base.html' %}
 
 {% block title %}
-    Add new Workshop type
+    Add Workshop Type - FOSSEE Workshops
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h2 class="text-center m-2">New Workshop Type</h2>
-        <br>
-        <form method="post">
-            <div class="row my-3">
-                <div class="col-3 font-weight-bold">Workshop Name :</div>
-                <div class="col text-left">
-                    <div class="row"><div class="col">{{ form.name }}</div></div>
-                    <div class="row m-1 text-danger"><div class="col">{{ form.name.errors }}</div></div>
+    <style>
+        .add-workshop-page {
+            min-height: calc(100vh - 120px);
+            padding: 2rem 0;
+            background-color: #f1f5f9;
+        }
+
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .workshop-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .workshop-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            padding: 2rem;
+            color: white;
+        }
+
+        .workshop-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.75rem;
+        }
+
+        .workshop-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #2563eb;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-help-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .error-message {
+            color: #991b1b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-cancel {
+            background-color: #e2e8f0;
+            color: #1e293b;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel:hover {
+            background-color: #cbd5e1;
+        }
+
+        @media (max-width: 768px) {
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .form-actions button,
+            .form-actions a {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .workshop-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+
+    <div class="add-workshop-page">
+        <div class="form-container">
+            <div class="workshop-card">
+                <div class="workshop-header">
+                    <h2><i class="fas fa-plus-circle"></i> Create New Workshop Type</h2>
                 </div>
 
-            </div>
-            <div class="row my-3">
-                <div class="col-3 font-weight-bold">Duration :</div>
-                <div class="col text-left">
-                    <div class="row"><div class="col">{{ form.duration }}</div></div>
-                    <div class="row m-1 text-muted"><div class="col">{{ form.duration.help_text }}</div></div>
-                    <div class="row m-1 text-danger"><div class="col">{{ form.duration.errors }}</div></div>
-                </div>
-            </div>
-            <div class="row my-3">
-                <div class="col-3 font-weight-bold">Description :</div>
-                <div class="col text-left">
-                    <div class="row"><div class="col">{{ form.description }}</div></div>
-                    <div class="row m-1 text-danger"><div class="col">{{ form.description.errors }}</div></div>
-                </div>
-            </div>
-            <div class="row my-3">
-                <div class="col-3 font-weight-bold">Terms and Conditions :</div>
-                <div class="col text-left">
-                    <div class="row"><div class="col">{{ form.terms_and_conditions }}</div></div>
-                    <div class="row m-1 text-danger"><div class="col">{{ form.terms_and_conditions.errors }}</div></div>
-                </div>
-            </div>
+                <div class="workshop-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
 
-            <div class="row my-3">
-                <div class="col-12">
-                    <button type="submit" class="btn btn-md btn-primary float-right m-3">Create</button>
+                        <!-- Workshop Name -->
+                        <div class="form-group">
+                            <label for="id_name">
+                                <i class="fas fa-book"></i> Workshop Name
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="error-message">
+                                    {% for error in form.name.errors %}
+                                        <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Duration -->
+                        <div class="form-group">
+                            <label for="id_duration">
+                                <i class="fas fa-hourglass-half"></i> Duration
+                            </label>
+                            {{ form.duration }}
+                            {% if form.duration.help_text %}
+                                <span class="form-help-text">{{ form.duration.help_text|safe }}</span>
+                            {% endif %}
+                            {% if form.duration.errors %}
+                                <div class="error-message">
+                                    {% for error in form.duration.errors %}
+                                        <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label for="id_description">
+                                <i class="fas fa-align-left"></i> Description
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="error-message">
+                                    {% for error in form.description.errors %}
+                                        <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="form-group">
+                            <label for="id_terms_and_conditions">
+                                <i class="fas fa-file-contract"></i> Terms and Conditions
+                            </label>
+                            {{ form.terms_and_conditions }}
+                            {% if form.terms_and_conditions.errors %}
+                                <div class="error-message">
+                                    {% for error in form.terms_and_conditions.errors %}
+                                        <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn-create">
+                                <i class="fas fa-check-circle"></i> Create Workshop Type
+                            </button>
+                            <a href="{% url 'workshop_app:workshop_type_list' %}" class="btn-cancel">
+                                <i class="fas fa-chevron-left"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 {% endblock %}
