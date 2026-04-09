@@ -1,84 +1,414 @@
 {% extends 'workshop_app/base.html' %}
 
 {% block title %}
-    View Workshop details
+    Workshop Details - FOSSEE Workshops
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <table class="table table-bordered">
-            <tr>
-                <th><label for="id_first_name">Workshop Type :</label></th>
-                <td><label for="id_first_name"><a
-                        href="{% url 'workshop_app:workshop_type_details' workshop.workshop_type_id %}">{{ workshop.workshop_type }}</a></label>
-                </td>
-            </tr>
-            <tr>
-                <th><label for="id_last_name">Date :</label></th>
-                <td><label for="id_last_name">{{ workshop.date }}</label></td>
-            </tr>
-            <tr>
-                <th><label for="id_email">Coordinator :</label></th>
-                <td><label for="id_email">{{ workshop.coordinator.get_full_name|title }}</label>
-                </td>
-            </tr>
-            {% if workshop.status %}
-                <tr>
-                    <th><label for="id_institute">Status :</label></th>
-                    <td><span class="badge badge-success">{{ workshop.get_status }}</span></td>
-                </tr>
-                <tr>
-                    <th><label for="id_phone_number">Instructor :</label></th>
-                    <td><label for="id_email">{{ workshop.instructor.get_full_name|title }}</label>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <th><label for="id_institute">Status :</label></th>
-                    <td><span class="badge badge-warning">{{ workshop.get_status }}</span></td>
-                </tr>
-            {% endif %}
-        </table>
-        <br>
-        <div class="container">
-            <div class="card mt-2 mb-5">
-                <form method="post">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="mx-3 font-weight-bold">Post a comment</div>
-                            {% if request.user.profile.position == 'instructor' %}
-                                <div class="ml-5">{{ form.public }} Public</div>
-                                <div class="ml-1 text-muted">(Non-public comments are visible only to instructors)</div>
+    <style>
+        .details-page {
+            min-height: calc(100vh - 120px);
+            padding: 2rem 0;
+            background-color: #f1f5f9;
+        }
+
+        .details-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .details-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .details-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            padding: 2rem;
+            color: white;
+        }
+
+        .details-header h2 {
+            margin: 0;
+            font-size: 1.75rem;
+        }
+
+        .workshop-info {
+            padding: 2rem;
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 2rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            align-items: center;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-label i {
+            color: #2563eb;
+        }
+
+        .info-value {
+            color: #64748b;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-approved {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .info-value a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .info-value a:hover {
+            text-decoration: underline;
+        }
+
+        .comments-section {
+            padding: 2rem;
+        }
+
+        .comments-header {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .comments-header i {
+            color: #2563eb;
+        }
+
+        .comment-form-card {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #2563eb;
+        }
+
+        .comment-form-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-options {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-wrapper input {
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper label {
+            cursor: pointer;
+            margin: 0;
+            color: #64748b;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-left: 1.5rem;
+        }
+
+        .comment-form-card textarea {
+            width: 100%;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .comment-form-card textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .comment-submit {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .comment-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .comment-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .comment-item:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .comment-author a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .comment-author a:hover {
+            text-decoration: underline;
+        }
+
+        .comment-time {
+            color: #94a3b8;
+        }
+
+        .comment-visibility {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .comment-text {
+            color: #64748b;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .no-comments {
+            text-align: center;
+            color: #94a3b8;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .info-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .form-options {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .comment-header {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+
+    <div class="details-page">
+        <div class="details-container">
+            <!-- Workshop Information Card -->
+            <div class="details-card">
+                <div class="details-header">
+                    <h2><i class="fas fa-briefcase"></i> Workshop Details</h2>
+                </div>
+
+                <div class="workshop-info">
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-book"></i> Workshop Type
+                        </div>
+                        <div class="info-value">
+                            <a href="{% url 'workshop_app:workshop_type_details' workshop.workshop_type_id %}">
+                                {{ workshop.workshop_type }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-calendar"></i> Date
+                        </div>
+                        <div class="info-value">{{ workshop.date|date:"M d, Y" }}</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-user-tie"></i> Coordinator
+                        </div>
+                        <div class="info-value">{{ workshop.coordinator.get_full_name|title }}</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-tag"></i> Status
+                        </div>
+                        <div class="info-value">
+                            {% if workshop.status %}
+                                <span class="status-badge status-approved">
+                                    <i class="fas fa-check-circle"></i> {{ workshop.get_status }}
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-pending">
+                                    <i class="fas fa-hourglass-half"></i> {{ workshop.get_status }}
+                                </span>
                             {% endif %}
                         </div>
                     </div>
-                    <div class="card-body">
-                        {{ form.comment }}
-                    </div>
-                    <button type="submit" class="float-right btn btn-primary btn-md m-2">Post</button>
-                </form>
+
+                    {% if workshop.status %}
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="fas fa-user"></i> Instructor
+                            </div>
+                            <div class="info-value">{{ workshop.instructor.get_full_name|title }}</div>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-            <br><br>
-            <h2 class="text-center">Comments</h2>
-            <br>
-            {% for comment in workshop_comments %}
-                <div class="card my-2">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="ml-3 font-weight-bold"><a
-                                    href="{% url 'workshop_app:view_profile' comment.author_id %}">{{ comment.author }}</a></div>
-                            {% if not comment.public %}
-                                <div class="ml-1"><span class="badge badge-dark">Hidden</span></div>
+
+            <!-- Comments Section -->
+            <div class="details-card">
+                <div class="workshop-info">
+                    <h3 class="comments-header">
+                        <i class="fas fa-comments"></i> Comments & Discussion
+                    </h3>
+
+                    <!-- Comment Form -->
+                    <div class="comment-form-card">
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            <div class="comment-form-title">
+                                <i class="fas fa-pen"></i> Post a Comment
+                            </div>
+
+                            <div class="form-options">
+                                {% if request.user.profile.position == 'instructor' %}
+                                    <div class="checkbox-wrapper">
+                                        {{ form.public }}
+                                        <label for="{{ form.public.id_for_label }}">
+                                            Make this comment public
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if request.user.profile.position == 'instructor' %}
+                                <div class="help-text">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Public comments are visible to all. Uncheck to keep visible only to instructors.
+                                </div>
                             {% endif %}
-                            <div class="ml-3 text-muted">{{ comment.created_date }}</div>
-                        </div>
+
+                            {{ form.comment }}
+                            <button type="submit" class="comment-submit">
+                                <i class="fas fa-paper-plane"></i> Post Comment
+                            </button>
+                        </form>
                     </div>
-                    <div class="card-body">
-                        <p>{{ comment.comment }}</p>
+
+                    <!-- Comments List -->
+                    <div style="margin-top: 2rem;">
+                        {% if workshop_comments %}
+                            {% for comment in workshop_comments %}
+                                <div class="comment-item">
+                                    <div class="comment-header">
+                                        <div class="comment-author">
+                                            <i class="fas fa-user-circle"></i>
+                                            <a href="{% url 'workshop_app:view_profile' comment.author_id %}">
+                                                {{ comment.author }}
+                                            </a>
+                                        </div>
+                                        <div class="comment-time">
+                                            <i class="fas fa-clock"></i> {{ comment.created_date|date:"M d, Y H:i" }}
+                                        </div>
+                                        {% if not comment.public %}
+                                            <div class="comment-visibility">
+                                                <i class="fas fa-lock"></i> Hidden (Instructors only)
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="comment-text">{{ comment.comment }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-comments">
+                                <i class="fas fa-comments"></i> No comments yet. Be the first to comment!
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-            {% endfor %}
+            </div>
         </div>
     </div>
-
 {% endblock %}
