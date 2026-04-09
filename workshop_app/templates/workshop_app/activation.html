@@ -1,76 +1,204 @@
 {% extends 'workshop_app/base.html' %}
 
 {% block title %}
-    Awaiting activation
-{% endblock %}
-
-{% block header %}
-    <nav class="navbar navbar-default navbar-dark bg-dark">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand text-white" href="/">
-                    FOSSEE Workshops
-                </a>
-            </div>
-            <ul class="nav navbar-nav navbar-right">
-                {% if request.user.profile.is_email_verified %}
-                    <li><a href="{% url 'workshop_app:view_profile' %}"><span class="glyphicon glyphicon-user"></span>
-                        Profile</a></li>
-
-                    <li><a href="{% url 'workshop_app:logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
-{% endblock %}
-
-{% block extra %}
-
+    Email Activation - FOSSEE Workshops
 {% endblock %}
 
 {% block content %}
-    {% if status == '2' %}
-        <div class="container">
-            <div class="jumbotron">
-                <p> Your email is already verified, Click
-                    <a href="{% url 'workshop_app:index' %}">here</a>
-                </p>
-            </div>
-        </div>
-    {% elif status == '1' %}
-        <script type="text/javascript">
-            window.setTimeout(function () {
-                location.href = "{% url 'workshop_app:register' %}"
-            }, 3000);
-        </script>
-        <div class="container">
-            <div class="jumbotron">
-                <p> Your activation has expired please register again</p>
-            </div>
-        </div>
-    {% elif status == '0' %}
-        <div class="container">
-            <div class="jumbotron">
-                <p> Your account has been activated. Click
-                    <a href="{% url 'workshop_app:index' %}">here</a>
-                </p>
-            </div>
-        </div>
-    {% else %}
-        <script type="text/javascript">
-            window.setTimeout(function () {
-                location.href = "{% url 'workshop_app:logout' %}"
-            }, 5000);
-        </script>
+    <style>
+        .activation-container {
+            min-height: calc(100vh - 120px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
 
-        <div class="container">
-            <div class="jumbotron">
-                <h1>Activation Awaiting</h1>
-                <p>The Activation Link has been sent to your email. The link expires in <strong>24hours</strong> from
-                    the date of registration. You will be logged out automatically
+        .activation-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .activation-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        .status-confirmed .activation-icon {
+            color: #10b981;
+        }
+
+        .status-expired .activation-icon {
+            color: #f59e0b;
+        }
+
+        .status-activated .activation-icon {
+            color: #10b981;
+        }
+
+        .status-pending .activation-icon {
+            color: #3b82f6;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .activation-card h2 {
+            color: #1e293b;
+            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .activation-card p {
+            color: #64748b;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .activation-timer {
+            background-color: #e0f2fe;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1.5rem 0;
+            font-weight: 500;
+            color: #0369a1;
+        }
+
+        .activation-actions {
+            margin-top: 2rem;
+        }
+
+        .activation-actions a {
+            display: inline-block;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .activation-actions a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .activation-footer {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .activation-footer strong {
+            color: #1e293b;
+        }
+    </style>
+
+    <div class="activation-container">
+        {% if status == '2' %}
+            <!-- Email Already Verified -->
+            <div class="activation-card status-confirmed">
+                <div class="activation-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Email Already Verified</h2>
+                <p>Your email address has already been verified and your account is active.</p>
+                <div class="activation-actions">
+                    <a href="{% url 'workshop_app:index' %}">
+                        <i class="fas fa-arrow-right"></i> Go to Dashboard
+                    </a>
+                </div>
+            </div>
+        {% elif status == '1' %}
+            <!-- Activation Expired -->
+            <div class="activation-card status-expired">
+                <div class="activation-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h2>Activation Link Expired</h2>
+                <p>Your activation link has expired. Please register again to create a new account.</p>
+                <div class="activation-timer">
+                    <i class="fas fa-info-circle"></i> Redirecting to registration in 3 seconds...
+                </div>
+                <div class="activation-actions">
+                    <a href="{% url 'workshop_app:register' %}">
+                        <i class="fas fa-user-plus"></i> Register Now
+                    </a>
+                </div>
+            </div>
+            <script type="text/javascript">
+                window.setTimeout(function() {
+                    location.href = "{% url 'workshop_app:register' %}"
+                }, 3000);
+            </script>
+        {% elif status == '0' %}
+            <!-- Account Activated -->
+            <div class="activation-card status-activated">
+                <div class="activation-icon">
+                    <i class="fas fa-thumbs-up"></i>
+                </div>
+                <h2>Account Activated!</h2>
+                <p>Your account has been successfully activated. You can now log in and access all features.</p>
+                <div class="activation-actions">
+                    <a href="{% url 'workshop_app:index' %}">
+                        <i class="fas fa-sign-in-alt"></i> Go to Home
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <!-- Activation Pending -->
+            <div class="activation-card status-pending">
+                <div class="activation-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h2>Activation Email Sent</h2>
+                <p>
+                    We've sent an activation link to your email address. 
+                    Please check your inbox and click the link to verify your account.
+                </p>
+                <div class="activation-timer">
+                    <i class="fas fa-hourglass-end"></i> The link expires in <strong>24 hours</strong>
+                </div>
+                <p style="font-size: 0.85rem; color: #94a3b8;">
+                    You will be automatically logged out. You will be redirected shortly...
                 </p>
             </div>
-        </div>
-    {% endif %}
+            <script type="text/javascript">
+                window.setTimeout(function() {
+                    location.href = "{% url 'workshop_app:logout' %}"
+                }, 5000);
+            </script>
+        {% endif %}
+    </div>
 {% endblock %}
