@@ -1,20 +1,198 @@
 {% extends "workshop_app/base.html" %}
 
 {% block title %}
-	Edit Profile
+	Edit Profile - FOSSEE Workshops
 {% endblock %}
 
 {% block content %}
-  <div class="container">
-    <form action="{{URL_ROOT}}/edit_profile/" method="post" >
-    {% csrf_token %}
-      <center>
-        <table class="table table-bordered">
-          {{ form.as_table }}
-        </table>
-      </center>
-      <br>
-        <button class="btn btn-primary pull-right" type="submit">Save Profile</button>
-    </form>
-  </div>
+	<style>
+		.profile-container {
+			min-height: calc(100vh - 120px);
+			padding: 2rem 0;
+			background-color: #f1f5f9;
+		}
+
+		.profile-wrapper {
+			width: 100%;
+			max-width: 700px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+
+		.profile-card {
+			border-radius: 12px;
+			box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+			overflow: hidden;
+			background-color: white;
+		}
+
+		.profile-header {
+			background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+			padding: 2rem 1.5rem;
+			text-align: center;
+			color: white;
+		}
+
+		.profile-header h2 {
+			font-size: 1.75rem;
+			margin: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.75rem;
+		}
+
+		.profile-header i {
+			font-size: 2rem;
+		}
+
+		.profile-body {
+			padding: 2rem;
+		}
+
+		.profile-form table {
+			width: 100%;
+			border: none;
+		}
+
+		.profile-form tr {
+			border-bottom: 1px solid #e2e8f0;
+		}
+
+		.profile-form tr:last-child {
+			border-bottom: none;
+		}
+
+		.profile-form td {
+			padding: 1.5rem 0;
+		}
+
+		.profile-form label {
+			font-weight: 600;
+			color: #1e293b;
+			display: block;
+			margin-bottom: 0.5rem;
+		}
+
+		.profile-form input,
+		.profile-form select,
+		.profile-form textarea {
+			width: 100%;
+			border: 2px solid #e2e8f0;
+			border-radius: 6px;
+			padding: 0.75rem;
+			font-size: 1rem;
+			transition: all 0.3s ease;
+			background-color: #f8fafc;
+		}
+
+		.profile-form input:focus,
+		.profile-form select:focus,
+		.profile-form textarea:focus {
+			border-color: #2563eb;
+			background-color: white;
+			box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+			outline: none;
+		}
+
+		.profile-form-actions {
+			display: flex;
+			gap: 1rem;
+			justify-content: flex-end;
+			margin-top: 2rem;
+			padding-top: 2rem;
+			border-top: 1px solid #e2e8f0;
+		}
+
+		.btn-save {
+			background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+			color: white;
+			border: none;
+			padding: 0.75rem 2rem;
+			border-radius: 6px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.btn-save:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+		}
+
+		.errorlist {
+			background-color: #fee2e2;
+			border-left: 4px solid #ef4444;
+			color: #991b1b;
+			padding: 0.875rem 1rem;
+			border-radius: 6px;
+			list-style: none;
+			margin-top: 0.5rem;
+		}
+
+		@media (max-width: 768px) {
+			.profile-header h2 {
+				font-size: 1.5rem;
+			}
+
+			.profile-form-actions {
+				flex-direction: column;
+			}
+
+			.profile-form-actions button {
+				width: 100%;
+			}
+		}
+	</style>
+
+	<div class="profile-container">
+		<div class="profile-wrapper">
+			<div class="profile-card">
+				<div class="profile-header">
+					<h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+				</div>
+
+				<div class="profile-body">
+					<form method="post" class="profile-form" novalidate>
+						{% csrf_token %}
+						<table>
+							{% for field in form %}
+								<tr>
+									<td>
+										{% if field.label %}
+											<label for="{{ field.id_for_label }}">
+												<i class="fas fa-{% if 'first_name' in field.name %}user{% elif 'last_name' in field.name %}user{% elif 'email' in field.name %}envelope{% elif 'phone' in field.name %}phone{% elif 'institute' in field.name %}building{% elif 'department' in field.name %}folder{% elif 'location' in field.name %}map-marker-alt{% elif 'position' in field.name %}briefcase{% else %}circle{% endif %}"></i>
+												{{ field.label }}
+											</label>
+										{% endif %}
+
+										{% if field.errors %}
+											{{ field }}
+											<ul class="errorlist">
+												{% for error in field.errors %}
+													<li>{{ error }}</li>
+												{% endfor %}
+											</ul>
+										{% else %}
+											{{ field }}
+										{% endif %}
+
+										{% if field.help_text %}
+											<small class="text-muted d-block mt-2">{{ field.help_text|safe }}</small>
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+						</table>
+
+						<div class="profile-form-actions">
+							<button type="submit" class="btn btn-save">
+								<i class="fas fa-save"></i> Save Changes
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
