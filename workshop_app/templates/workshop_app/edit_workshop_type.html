@@ -2,100 +2,336 @@
 {% load static %}
 
 {% block title %}
-    Add new Workshop type
+    Edit Workshop Type - FOSSEE Workshops
 {% endblock %}
 
 {% block extra-dependencies %}
 {% endblock %}
 
 {% block extra-custom-scripts %}
-
     <script src="{% static 'workshop_app/js/jquery.formset.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h2 class="text-center m-2">View / Edit Workshop Type</h2>
-        <br>
-        <form method="post" enctype="multipart/form-data">
-            <div class="row my-3">
-                <div class="col-3 font-weight-bold">Workshop Name :</div>
-                <div class="col text-left">
-                    <div class="row">
-                        <div class="col">{{ form.name }}</div>
-                    </div>
-                    <div class="row m-1 text-danger">
-                        <div class="col">{{ form.name.errors }}</div>
-                    </div>
+    <style>
+        .edit-workshop-page {
+            min-height: calc(100vh - 120px);
+            padding: 2rem 0;
+            background-color: #f1f5f9;
+        }
+
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .workshop-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .workshop-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            padding: 2rem;
+            color: white;
+        }
+
+        .workshop-header h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.75rem;
+        }
+
+        .workshop-body {
+            padding: 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section-title {
+            font-size: 1.25rem;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-section-title i {
+            color: #2563eb;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #2563eb;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-help-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .error-message {
+            color: #991b1b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .attachment-section {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .attachment-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .attachment-item:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .attachment-fields {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .attachment-actions {
+            margin-left: 1rem;
+        }
+
+        .btn-delete {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-delete:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .attachment-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .attachment-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .attachment-actions {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+
+    <div class="edit-workshop-page">
+        <div class="form-container">
+            <div class="workshop-card">
+                <div class="workshop-header">
+                    <h2><i class="fas fa-edit"></i> Edit Workshop Type</h2>
                 </div>
 
-            </div>
-            <div class="row my-3">
-                <div class="col-3 font-weight-bold">Duration :</div>
-                <div class="col text-left">
-                    <div class="row">
-                        <div class="col">{{ form.duration }}</div>
-                    </div>
-                    <div class="row m-1 text-muted">
-                        <div class="col">{{ form.duration.help_text }}</div>
-                    </div>
-                    <div class="row m-1 text-danger">
-                        <div class="col">{{ form.duration.errors }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="row my-3">
-                <div class="col-3 font-weight-bold">Description :</div>
-                <div class="col text-left">
-                    <div class="row">
-                        <div class="col">{{ form.description }}</div>
-                    </div>
-                    <div class="row m-1 text-danger">
-                        <div class="col">{{ form.description.errors }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="row my-3">
-                <div class="col-3 font-weight-bold">Terms and Conditions :</div>
-                <div class="col text-left">
-                    <div class="row">
-                        <div class="col">{{ form.terms_and_conditions }}</div>
-                    </div>
-                    <div class="row m-1 text-danger">
-                        <div class="col">{{ form.terms_and_conditions.errors }}</div>
-                    </div>
-                </div>
-            </div>
+                <div class="workshop-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
 
-            <h2 class="text-center m-2">Attachments</h2>
-            {{ form_file.management_form }}
-            {{ form_file.non_form_errors }}
-            {% for form in form_file %}
-                <div class="inline {{ form_file.prefix }} my-4">
-                    <div class="row">
-                        <div class="col-11">
-                            {% for field in form %}
-                                <div class="col-6">{{ field }}</div>
-                            {% endfor %}
+                        <!-- Basic Information Section -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">
+                                <i class="fas fa-info-circle"></i> Basic Information
+                            </h3>
+
+                            <div class="form-group">
+                                <label for="id_name">
+                                    <i class="fas fa-book"></i> Workshop Name
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="error-message">
+                                        {% for error in form.name.errors %}
+                                            <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_duration">
+                                    <i class="fas fa-hourglass-half"></i> Duration
+                                </label>
+                                {{ form.duration }}
+                                {% if form.duration.help_text %}
+                                    <span class="form-help-text">{{ form.duration.help_text|safe }}</span>
+                                {% endif %}
+                                {% if form.duration.errors %}
+                                    <div class="error-message">
+                                        {% for error in form.duration.errors %}
+                                            <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_description">
+                                    <i class="fas fa-align-left"></i> Description
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="error-message">
+                                        {% for error in form.description.errors %}
+                                            <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_terms_and_conditions">
+                                    <i class="fas fa-file-contract"></i> Terms and Conditions
+                                </label>
+                                {{ form.terms_and_conditions }}
+                                {% if form.terms_and_conditions.errors %}
+                                    <div class="error-message">
+                                        {% for error in form.terms_and_conditions.errors %}
+                                            <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-                    {% if form.id.value %}
-                    <div class="col-1">
-                        <a href="{% url 'workshop_app:delete_attachment_file' form.id.value %}"><button class="btn btn-md btn-danger float-right" type="button">Delete</button></a>
-                    </div>
-                    {% endif %}
-                    </div>
 
-                </div>
-                <hr>
-            {% endfor %}
-            <div class="row my-3">
-                <div class="col-12">
-                    <button type="submit" class="btn btn-md btn-primary float-right m-3">Save</button>
+                        <!-- Attachments Section -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">
+                                <i class="fas fa-paperclip"></i> Attachments
+                            </h3>
+
+                            <div class="attachment-section">
+                                {{ form_file.management_form }}
+                                {{ form_file.non_form_errors }}
+
+                                {% for form in form_file %}
+                                    <div class="attachment-item">
+                                        <div class="attachment-fields">
+                                            {% for field in form %}
+                                                <div>{{ field }}</div>
+                                            {% endfor %}
+                                        </div>
+                                        {% if form.id.value %}
+                                            <div class="attachment-actions">
+                                                <a href="{% url 'workshop_app:delete_attachment_file' form.id.value %}">
+                                                    <button class="btn-delete" type="button">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
-    <br><br><br><br>
+{% endblock %}
     <script type="text/javascript">
         $(function () {
             $(".inline.{{ form_file.prefix }}").formset({
