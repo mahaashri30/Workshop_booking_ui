@@ -1,32 +1,182 @@
 {% extends 'workshop_app/base.html' %}
 
 {% block title %}
-    View Workshop details
+    Workshop Type Details - FOSSEE Workshops
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h2 class="text-center m-3">Workshop Details</h2>
-        <table class="table table-hover">
-            <tr class="d-flex">
-                <th class="col-3">Workshop Name :</th>
-                <td class="col">{{ workshop_type.name }}</td>
-            </tr>
-            <tr class="d-flex">
-                <th class="col-3">Duration :</th>
-                <td class="col">{{ workshop_type.duration }} day(s)</td>
-            </tr>
-            <tr class="d-flex">
-                <th class="col-3">Description :</th>
-                <td class="col">{{ workshop_type.description }}</td>
-            </tr>
-            <tr class="d-flex">
-                <th class="col-3">Terms and Conditions :</th>
-                <td class="col">{{ workshop_type.terms_and_conditions }}</td>
-            </tr>
-        </table>
-    </div>
+    <style>
+        .details-page {
+            min-height: calc(100vh - 120px);
+            padding: 2rem 0;
+            background-color: #f1f5f9;
+        }
 
+        .details-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .details-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .details-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            padding: 2.5rem;
+            color: white;
+        }
+
+        .details-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .details-body {
+            padding: 2.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            gap: 2rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            align-items: flex-start;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #1e293b;
+            min-width: 180px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .detail-label i {
+            color: #2563eb;
+            font-size: 1.2rem;
+        }
+
+        .detail-value {
+            color: #64748b;
+            font-size: 1rem;
+            line-height: 1.6;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .detail-value.duration {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .detail-value.description,
+        .detail-value.tnc {
+            background-color: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2563eb;
+            white-space: pre-wrap;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: #e2e8f0;
+            color: #1e293b;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #cbd5e1;
+            transform: translateX(-3px);
+        }
+
+        @media (max-width: 768px) {
+            .details-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .detail-label {
+                min-width: auto;
+            }
+
+            .details-body {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+
+    <div class="details-page">
+        <div class="details-container">
+            <a href="{% url 'workshop_app:workshop_type_list' %}" class="back-button">
+                <i class="fas fa-arrow-left"></i> Back to Workshops
+            </a>
+
+            <div class="details-card">
+                <div class="details-header">
+                    <h1><i class="fas fa-book"></i> {{ workshop_type.name }}</h1>
+                </div>
+
+                <div class="details-body">
+                    <div class="detail-row">
+                        <div class="detail-label">
+                            <i class="fas fa-book"></i> Workshop Name
+                        </div>
+                        <div class="detail-value">{{ workshop_type.name }}</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">
+                            <i class="fas fa-hourglass-half"></i> Duration
+                        </div>
+                        <div class="detail-value duration">
+                            {{ workshop_type.duration }} Day(s)
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">
+                            <i class="fas fa-align-left"></i> Description
+                        </div>
+                        <div class="detail-value description">{{ workshop_type.description }}</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">
+                            <i class="fas fa-file-contract"></i> Terms and Conditions
+                        </div>
+                        <div class="detail-value tnc">{{ workshop_type.terms_and_conditions }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 
