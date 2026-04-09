@@ -1,85 +1,229 @@
 {% extends 'workshop_app/base.html' %}
 {% load custom_filters %}
+
 {% block title %}
-	View List of available Workshops
+	Workshop Types - FOSSEE Workshops
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-    <h2 class="text-center">Workshop Types</h2>
-    <br>
-    {% if request.user|has_group:"instructor" %}
-        <a href="{% url 'workshop_app:add_workshop_type' %}">
-        <button class="btn btn-md btn-primary float-right mb-3 mx-4">Add Workshop Type</button>
-        </a>
-        <br>
-    {% endif %}
-	<div class="container">
-		<table class="table table-hover">
-		  <thead>
-		    <tr>
-		      <th>Sr No</th>
-		      <th>Workshop Name</th>
-		      <th>Workshop Duration (Days)</th>
-		      <th>Action</th>
-		    </tr>
-		  </thead>
+    <style>
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
 
-		{% for w in workshop_type %}
-		  <tbody>
-		    <tr  >
-		      <td scope="row" id="{{ forloop.counter }}">{{ forloop.counter }}</td>
-		      <td>{{ w.name }}</td>
-		      <td>{{ w.duration }}</td>
-		      <td><a href="{% url 'workshop_app:workshop_type_details' w.id %}" class="btn btn-outline-info" class="accordion-toggle" >View Workshop Details</a></td>
-		    </tr>
-		  </tbody>
-		 {% endfor %}
-		</table>
-	</div>
+        .header-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
 
-	    <!-- The Modal -->
-	    <div id="mailModal" class="modal">
+        .header-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+        }
 
-	    <!-- Modal content -->
-	    <div class="modal-content">
-		<span class="close">&times;</span>
-		<p>Separate Multiple Email Id's using <strong> comma (,)</strong></p>
-		<form action="{{URL_ROOT}}/share_details/" method="POST">
-		  {% csrf_token %}
-		    <label > Email: </label>
-		    <input name="email" type='email' multiple>
-		    <input type='submit'>
-		</form>
-	    </div>
-	    </div>
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-<!-- Page Navigation -->
-	<div class="container">
+        .table-responsive {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
 
-		<div class="Page-Nav" align="center">
-		<nav aria-label="Page navigation">
-		 	<ul class="pagination pagination-sm">
-			  	<li class="page-item">
-			      {% if workshoptype.has_previous %}
-					<a class="page-link" tabindex="-1" 
-							href="?page={{ workshop_type.previous_page_number }}">Previous</a>
-				{% endif %}
-			    </li>
-			    <li class="page-item">
-			    <span class="current">
-				Page {{ workshop_type.number }} of {{ workshop_type.paginator.num_pages }}
-					</span>
-				</li>
-			    <li class="page-item">
-			    {% if workshop_type.has_next %}
-					<a class="page-link" href="?page={{ workshop_type.next_page_number }}">Next
-					</a>
-				{% endif %}
-			    </li>
-		  	</ul>
-		</nav>
-		</div>
-	</div>
-</div>
+        .btn-add-workshop {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .current-page {
+            font-weight: 600;
+            color: #2563eb;
+            padding: 0.5rem 1rem;
+            background-color: #dbeafe;
+            border-radius: 6px;
+        }
+
+        .no-data-message {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #64748b;
+        }
+
+        .no-data-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+
+    <div class="container-lg">
+        <div class="page-header">
+            <h1 class="header-title">
+                <i class="fas fa-book"></i> Workshop Types
+            </h1>
+            <p class="header-subtitle">Browse and manage all available workshop categories</p>
+        </div>
+
+        <div class="action-bar">
+            <div></div>
+            {% if request.user|has_group:"instructor" %}
+                <a href="{% url 'workshop_app:add_workshop_type' %}">
+                    <button class="btn btn-primary btn-add-workshop">
+                        <i class="fas fa-plus-circle"></i> Add Workshop Type
+                    </button>
+                </a>
+            {% endif %}
+        </div>
+
+        {% if workshop_type %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-hashtag"></i> Sr No</th>
+                            <th><i class="fas fa-graduation-cap"></i> Workshop Name</th>
+                            <th><i class="fas fa-calendar-alt"></i> Duration (Days)</th>
+                            <th style="text-align: center;"><i class="fas fa-eye"></i> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for w in workshop_type %}
+                            <tr>
+                                <td>
+                                    <span class="badge badge-primary">{{ forloop.counter }}</span>
+                                </td>
+                                <td>
+                                    <strong>{{ w.name }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge badge-info">{{ w.duration }} days</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <a href="{% url 'workshop_app:workshop_type_details' w.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-search"></i> View Details
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body no-data-message">
+                    <div class="no-data-icon">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <h5>No Workshop Types Available</h5>
+                    <p>No workshops are currently available. Please check back later.</p>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Pagination -->
+        {% if workshop_type.paginator.num_pages > 1 %}
+            <div class="pagination-container">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if workshop_type.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1" title="First page">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ workshop_type.previous_page_number }}" title="Previous page">
+                                    <i class="fas fa-angle-left"></i> Previous
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-angle-double-left"></i></span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-angle-left"></i> Previous</span>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item disabled">
+                            <span class="current">
+                                Page {{ workshop_type.number }} of {{ workshop_type.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if workshop_type.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ workshop_type.next_page_number }}" title="Next page">
+                                    Next <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ workshop_type.paginator.num_pages }}" title="Last page">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Next <i class="fas fa-angle-right"></i></span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-angle-double-right"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="mailModal" tabindex="-1" role="dialog" aria-labelledby="mailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mailModalLabel">
+                        <i class="fas fa-envelope"></i> Share Workshop Details
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">
+                        <i class="fas fa-info-circle"></i> Separate multiple email IDs using commas (,)
+                    </p>
+                    <form action="{{URL_ROOT}}/share_details/" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="email-input"><i class="fas fa-at"></i> Email Address(es)</label>
+                            <input class="form-control" id="email-input" name="email" type="email" placeholder="user@example.com, user2@example.com" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
