@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-    Propose a workshop
+    Propose a Workshop - FOSSEE Workshops
 {% endblock %}
 
 {% block extra-dependencies %}
@@ -26,13 +26,18 @@
                 minDate: dateToday,
                 maxDate: upto,
                 beforeShowDay: $.datepicker.noWeekends,
+                dateFormat: 'yy-mm-dd'
             });
-
 
             $('#disp_tnc').click(function (e) {
                 e.preventDefault()
                 if ($('#id_workshop_type').val() === '')
-                    $('.modal-body').html("<p class='text-danger'>Please select a workshop type</p>")
+                    $('.modal-body').html(
+                        "<div class='alert alert-warning'>" +
+                        "<i class='fas fa-exclamation-triangle'></i> " +
+                        "Please select a workshop type" +
+                        "</div>"
+                    )
                 else {
                     $.ajax({
                         url: '/workshop/type_tnc/' + $('#id_workshop_type').val(),
@@ -46,74 +51,237 @@
     </script>
 {% endblock %}
 
-
 {% block content %}
-    <style type="text/css">
-        .errorlist {
-            color: red;
+    <style>
+        .propose-page-header {
+            margin-bottom: 2.5rem;
         }
 
-    .modal-open .modal{
-        overflow-y: hidden;
-    }
+        .propose-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .propose-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .info-banner {
+            background: linear-gradient(135deg, #d1e7f9 0%, #e0e7ff 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .info-banner i {
+            flex-shrink: 0;
+            color: #2563eb;
+            margin-top: 0.25rem;
+        }
+
+        .proposal-form-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .proposal-card {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+        }
+
+        .tnc-link {
+            color: #2563eb;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .tnc-link:hover {
+            color: #1e40af;
+            text-decoration: underline;
+        }
+
+        .error-section {
+            background-color: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .error-section h5 {
+            color: #991b1b;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-section ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #7f1d1d;
+        }
+
+        .error-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .submit-button {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .propose-title {
+                font-size: 1.5rem;
+            }
+
+            .proposal-form-container {
+                padding: 0 1rem;
+            }
+        }
     </style>
 
-    <div class="container" align="center">
-        <div class="alert alert-info">
-            Note: Before proposing the workshop, please check about the workshop in the
-            <strong>Workshop Types</strong> section
+    <div class="container-lg">
+        <div class="propose-page-header">
+            <h1 class="propose-title">
+                <i class="fas fa-plus-circle"></i> Propose Workshop
+            </h1>
+            <p class="propose-subtitle">Submit a proposal for a new workshop at your institution</p>
         </div>
-        <br><br>
-        <div class="col-md-6 col-md-offset-6">
-            <div class="card border-primary">
+
+        <div class="info-banner">
+            <i class="fas fa-lightbulb"></i>
+            <div>
+                <strong>Before proposing:</strong> Please check the 
+                <a href="{% url 'workshop_app:workshop_type_list' %}" class="tnc-link">Workshop Types</a>
+                section to learn more about available workshops and their requirements.
+            </div>
+        </div>
+
+        <div class="proposal-form-container">
+            <div class="card proposal-card">
                 <div class="card-header">
-                    <h3>Propose Workshop</h3>
+                    <h5 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-clipboard-list"></i> Workshop Proposal Form
+                    </h5>
                 </div>
+
                 <div class="card-body">
-                    <div class="form-group">
-                        <form method="post">
-                            {% csrf_token %}
-                            <br/>
+                    {% if form.errors %}
+                        <div class="error-section">
+                            <h5>
+                                <i class="fas fa-exclamation-circle"></i> Please correct the following errors:
+                            </h5>
+                            {{ form.errors|unordered_list }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for="id_workshop_type">
+                                <i class="fas fa-graduation-cap"></i> Workshop Type <span class="text-danger">*</span>
+                            </label>
                             {{ form.workshop_type }}
-                            <br>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_date">
+                                <i class="fas fa-calendar-alt"></i> Proposed Date <span class="text-danger">*</span>
+                            </label>
                             {{ form.date }}
-                            <br>
-                            {{ form.tnc_accepted }} I accept the
-                            <a href="#" id="disp_tnc" data-toggle="modal"
-                            data-target="#exampleModalCenter">
-                                terms and conditions
-                            </a>
-                            <br>
-                            {% if form.errors %}
-                                <br>
-                                <div style="text-align: left; border: 1px solid red; padding-top: 5px">
-                                    <h5 style="text-align: center; color: red; font-weight: bolder">Errors</h5>
-                                    {{ form.errors }}
-                                </div>
-                            {% endif %}
-                            <br>
-                            <button class="btn btn-success" type="submit">Submit</button>
-                        </form>
-                    </div>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle"></i> Please select a date within the next year (excluding weekends)
+                            </small>
+                        </div>
+
+                        <div class="checkbox-group">
+                            {{ form.tnc_accepted }}
+                            <label for="{{ form.tnc_accepted.id_for_label }}" style="margin: 0; cursor: pointer;">
+                                I accept the
+                                <a href="#" id="disp_tnc" class="tnc-link" data-toggle="modal" data-target="#tncModal">
+                                    terms and conditions
+                                </a>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-success submit-button">
+                            <i class="fas fa-check-circle"></i> Submit Proposal
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-        <br>
-
     </div>
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+
+    <!-- Terms and Conditions Modal -->
+    <div class="modal fade" id="tncModal" tabindex="-1" role="dialog" aria-labelledby="tncModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Terms and Conditions</h5>
+                    <h5 class="modal-title" id="tncModalLabel">
+                        <i class="fas fa-file-contract"></i> Terms and Conditions
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-
+                    <!-- Content will be loaded via AJAX -->
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">I Agree</button>
                 </div>
             </div>
         </div>
