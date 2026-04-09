@@ -1,129 +1,381 @@
 {% extends 'workshop_app/base.html' %}
 
-{% block title %} Profile {% endblock %}
+{% block title %} Profile - FOSSEE Workshops {% endblock %}
 
 {% csrf_token %}
 {% block content %}
+    <style>
+        .profile-page {
+            min-height: calc(100vh - 120px);
+            padding: 2rem 0;
+            background-color: #f1f5f9;
+        }
 
-    <div class="container">
-        {% if Workshops %}
-            <table class="table table-bordered">
-                <tr>
-                    <th><label for="id_first_name"><h5>First name:</h5></label></th>
-                    <th><label for="id_first_name"><h5>{{ coordinator_profile.user.first_name }}</h5></label></th>
-                </tr>
-                <tr>
-                    <th><label for="id_last_name"><h5>Last name:</h5></label></th>
-                    <th><label for="id_last_name"><h5>{{ coordinator_profile.user.last_name }}</h5></label></th>
-                </tr>
-                <tr>
-                    <th><label for="id_email"><h5>Email:</h5></label></th>
-                    <th><label for="id_email"><h5>{{ coordinator_profile.user.email }}</h5></label></th>
-                </tr>
-                <tr>
-                    <th><label for="id_institute"><h5>Institute:</h5></label></th>
-                    <th><label for="id_institute"><h5>{{ coordinator_profile.user.profile.institute }}</h5></label></th>
-                </tr>
-                <tr>
-                    <th><label for="id_phone_number"><h5>Phone Number:</h5></label></th>
-                    <th><label for="id_phone_number"><h5>{{ coordinator_profile.user.profile.phone_number }}</h5></label>
-                    </th>
-                </tr>
-                <tr>
-                    <th><label for="id_department"><h5>Department:</h5></label></th>
-                    <th><label for="id_department"><h5>{{ coordinator_profile.user.profile.department }}</h5></label></th>
-                </tr>
-                <tr>
-                    <th><label for="id_location"><h5>Location:</h5></label></th>
-                    <th><label for="id_location"><h5>{{ coordinator_profile.user.profile.location }}</h5></label></th>
-                </tr>
-                <tr>
-                    <th><label for="id_position"><h5>Position:</h5></label></th>
-                    <th><label for="id_position"><h5>{{ coordinator_profile.user.profile.position }}</h5></label></th>
-                </tr>
-            </table>
-            <br>
+        .profile-header-section {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
 
-            <div class="container">
-            <h2>Workshop Details</h2>
-            <table class="table table-bordered">
-            <tr>
-                <th><label for="id_instructor_name">Instructor name</label></th>
-                <th><label for="id_workshop_date">Workshop date</label></th>
-                <th><label for="id_workshop_type">Workshop type</label></th>
-            </tr>
-            {% for workshop in Workshops %}
-                {% if workshop.instructor %}
-                    <tr>
-                        <td><label for="id_instructor_name">{{ workshop.instructor }}
-                        </label></td>
-                        <td><label for="id_workshop_date">{{ workshop.date }}</label>
-                        </td>
-                        <td><label for="id_workshop_type">{{ workshop.workshop_type }}</label>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td><span class="badge badge-warning">Pending</span></td>
-                        <td><label for="id_workshop_date">{{ workshop.date }}</label>
-                        </td>
-                        <td><label for="id_workshop_type">{{ workshop.workshop_type }}</label>
-                        </td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-            </table>
-            </div>
-            <br><br>
-        {% else %}
-            <form action="" method="post">
-              {% csrf_token %}
-                <div class="row justify-content-center form-group">
-                    <div class="col-md-6">
-                    <form action="" method="post">
-                        <fieldset>
-                            {% csrf_token %}
-                            {% if form.errors %}
-                                {% for field in form %}
-                                    {% for error in field.errors %}
-                                        <div class="alert alert-dismissible alert-danger">
-                                            <button type="button" class="close" data-dismiss="alert">
-                                                <i class="fa fa-close"></i>
-                                            </button>
-                                            <strong>{{field.label}} : {{ error|escape }}</strong>
-                                        </div>
-                                    {% endfor %}
-                                {% endfor %}
-                                {% for error in form.non_field_errors %}
-                                    <div class="alert alert-dismissible alert-danger">
-                                        <button type="button" class="close" data-dismiss="alert">
-                                            <i class="fa fa-close"></i>
-                                        </button>
-                                        <strong>{{field.label}} : {{ error|escape }}</strong>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                            <table class="table table-responsive-sm">
-                                <tr><td>{{form.title}}</td></tr>
-                                <tr><td>{{form.first_name}}</td></tr>
-                                <tr><td>{{form.last_name}}</td></tr>
-                                <tr><td>{{form.phone_number}}</td></tr>
-                                <tr><td>{{form.institute}}</td></tr>
-                                <tr><td>{{form.department}}</td></tr>
-                                <tr><td>{{form.position}}</td></tr>
-                                <tr><td>{{form.location}}</td></tr>
-                                <tr><td>{{form.state}}</td></tr>
-                            </table>
-                            <br>
-                        </fieldset>
-                        <button class="btn btn-success btn-lg" type="submit">
-                            <i class="fa fa-pencil-square-o"></i>&nbsp;Update</button>
-                        <a href="{% url 'workshop_app:index' %}" class="btn btn-primary btn-lg">Cancel
-                        </a>
-                    </form>
+        .profile-info-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 2rem;
+            padding: 1.25rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            align-items: center;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #1e293b;
+            min-width: 180px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-label i {
+            color: #2563eb;
+            font-size: 1.2rem;
+        }
+
+        .info-value {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .info-value a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .info-value a:hover {
+            text-decoration: underline;
+        }
+
+        .workshop-section {
+            margin-top: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+            color: #2563eb;
+        }
+
+        .workshop-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .workshop-table thead {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+        }
+
+        .workshop-table thead th {
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .workshop-table tbody tr {
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .workshop-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .workshop-table tbody td {
+            padding: 1rem;
+        }
+
+        .no-data-card {
+            background: white;
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-data-icon {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        .edit-form-container {
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .edit-form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .edit-form-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            padding: 2rem;
+            color: white;
+        }
+
+        .edit-form-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .edit-form-body {
+            padding: 2rem;
+        }
+
+        .edit-form-body table {
+            width: 100%;
+            border: none;
+        }
+
+        .edit-form-body tr {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .edit-form-body tr:last-child {
+            border-bottom: none;
+        }
+
+        .edit-form-body td {
+            padding: 1rem 0;
+        }
+
+        .edit-form-body input,
+        .edit-form-body select,
+        .edit-form-body textarea {
+            width: 100%;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .edit-form-body input:focus,
+        .edit-form-body select:focus,
+        .edit-form-body textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .form-actions button,
+        .form-actions a {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .info-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .info-label {
+                min-width: auto;
+            }
+        }
+    </style>
+
+    <div class="profile-page">
+        <div class="container">
+            {% if Workshops %}
+                <!-- Profile Information Section -->
+                <div class="profile-header-section"></div>
+
+                <div class="profile-info-card">
+                    <h2 style="margin-top: 0; display: flex; align-items: center; gap: 0.75rem; color: #1e293b;">
+                        <i class="fas fa-user-circle"></i> Profile Information
+                    </h2>
+                    
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-user"></i> First Name</div>
+                        <div class="info-value">{{ coordinator_profile.user.first_name }}</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-user"></i> Last Name</div>
+                        <div class="info-value">{{ coordinator_profile.user.last_name }}</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-envelope"></i> Email</div>
+                        <div class="info-value">{{ coordinator_profile.user.email }}</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-building"></i> Institute</div>
+                        <div class="info-value">{{ coordinator_profile.user.profile.institute }}</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-phone"></i> Phone</div>
+                        <div class="info-value">{{ coordinator_profile.user.profile.phone_number }}</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-folder"></i> Department</div>
+                        <div class="info-value">{{ coordinator_profile.user.profile.department }}</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-map-marker-alt"></i> Location</div>
+                        <div class="info-value">{{ coordinator_profile.user.profile.location }}</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-briefcase"></i> Position</div>
+                        <div class="info-value">{{ coordinator_profile.user.profile.position }}</div>
                     </div>
                 </div>
-            </form>
-        {% endif %}
+
+                <!-- Workshops Section -->
+                <div class="workshop-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-graduation-cap"></i> Workshop Details
+                    </h2>
+
+                    {% if Workshops %}
+                        <table class="workshop-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-chalkboard-user"></i> Instructor Name</th>
+                                    <th><i class="fas fa-calendar-alt"></i> Workshop Date</th>
+                                    <th><i class="fas fa-book"></i> Workshop Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for workshop in Workshops %}
+                                    <tr>
+                                        <td>
+                                            {% if workshop.instructor %}
+                                                <a href="{% url 'workshop_app:view_profile' workshop.instructor.id %}">
+                                                    {{ workshop.instructor }}
+                                                </a>
+                                            {% else %}
+                                                <span class="badge badge-warning">
+                                                    <i class="fas fa-clock"></i> Pending
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ workshop.date|date:"d M, Y" }}</td>
+                                        <td>{{ workshop.workshop_type }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+            {% else %}
+                <!-- Edit Profile Form -->
+                <div class="edit-form-container">
+                    <div class="edit-form-card">
+                        <div class="edit-form-header">
+                            <h3><i class="fas fa-user-edit"></i> Complete Your Profile</h3>
+                        </div>
+
+                        <div class="edit-form-body">
+                            <form method="post" novalidate>
+                                {% csrf_token %}
+
+                                {% if form.errors %}
+                                    <div style="margin-bottom: 1rem;">
+                                        {% for field in form %}
+                                            {% for error in field.errors %}
+                                                <div class="alert alert-danger alert-dismissible" style="border-left: 4px solid #ef4444;">
+                                                    <button type="button" class="close" data-dismiss="alert">
+                                                        <span>&times;</span>
+                                                    </button>
+                                                    <strong><i class="fas fa-exclamation-circle"></i> {{ field.label }}:</strong> {{ error|escape }}
+                                                </div>
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {% for error in form.non_field_errors %}
+                                            <div class="alert alert-danger alert-dismissible" style="border-left: 4px solid #ef4444;">
+                                                <button type="button" class="close" data-dismiss="alert">
+                                                    <span>&times;</span>
+                                                </button>
+                                                <strong><i class="fas fa-exclamation-circle"></i></strong> {{ error|escape }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                <table>
+                                    <tr><td>{{ form.title }}</td></tr>
+                                    <tr><td>{{ form.first_name }}</td></tr>
+                                    <tr><td>{{ form.last_name }}</td></tr>
+                                    <tr><td>{{ form.phone_number }}</td></tr>
+                                    <tr><td>{{ form.institute }}</td></tr>
+                                    <tr><td>{{ form.department }}</td></tr>
+                                    <tr><td>{{ form.position }}</td></tr>
+                                    <tr><td>{{ form.location }}</td></tr>
+                                    <tr><td>{{ form.state }}</td></tr>
+                                </table>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save"></i> Update Profile
+                                    </button>
+                                    <a href="{% url 'workshop_app:index' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
