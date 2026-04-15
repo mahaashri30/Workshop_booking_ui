@@ -8,9 +8,17 @@ import './styles/auth.css';
  * Routes between Login, Register, and Activation pages
  */
 function AuthApp() {
-  const [currentPage, setCurrentPage] = useState('login');
-  const [activationKey, setActivationKey] = useState(null);
-  const [userEmail, setUserEmail] = useState('');
+  // Initialize page from window.INITIAL_PAGE (set by Django template) or URL
+  const [currentPage, setCurrentPage] = useState(() => {
+    if (window.INITIAL_PAGE) {
+      return window.INITIAL_PAGE;
+    }
+    const url = new URL(window.location);
+    return url.searchParams.get('page') || 'login';
+  });
+
+  const [activationKey, setActivationKey] = useState(window.ACTIVATION_KEY || null);
+  const [userEmail, setUserEmail] = useState(window.USER_EMAIL || '');
 
   // Get activation key from URL if present
   useEffect(() => {

@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to your Workshop Booking account">
+    <title>Sign In - Workshop Booking</title>
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://unpkg.com">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'react/src/styles/auth.css' %}">
+    
+    <style>
+        /* Minimal overrides for integration */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #react-root {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <!-- React App Container -->
+    <div id="react-root"></div>
+
+    <!-- Set global configuration for React app -->
+    <script>
+        // CSRF token for Django API requests
+        window.CSRF_TOKEN = '{{ csrf_token }}';
+        
+        // API base URL
+        window.API_BASE_URL = '{{ api_base_url|default:"http://localhost:8000" }}';
+        
+        // Debug mode
+        window.DEBUG = {{ debug|lower }};
+    </script>
+
+    <!-- React libraries from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Bundled React auth app -->
+    <script src="{% static 'react/dist/auth-bundle.js' %}"></script>
+
+    <!-- Analytics (optional) -->
+    {% if analytics_enabled %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ analytics_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ analytics_id }}');
+    </script>
+    {% endif %}
+</body>
+</html>
