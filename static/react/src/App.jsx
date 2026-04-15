@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LoginPage, RegisterPage, ActivationPage } from './components/Auth';
+import { LoginPage, RegisterPage, ActivationPage } from './components/Auth/index.js';
 import './styles/auth.css';
 
 /**

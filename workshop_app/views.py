@@ -60,9 +60,15 @@ def index(request):
     """Landing Page : Redirect to login page if not logged in
                       Redirect to respective landing page according to position"""
     user = request.user
-    if user.is_authenticated and is_email_checked(user):
-        return redirect(get_landing_page(user))
-
+    if user.is_authenticated:
+        if is_email_checked(user):
+            # Email verified - redirect to dashboard
+            return redirect(get_landing_page(user))
+        else:
+            # Email not verified - redirect to activation page
+            return redirect(reverse('workshop_app:activate_user'))
+    
+    # Not authenticated - redirect to login
     return redirect(reverse('workshop_app:login'))
 
 
@@ -87,10 +93,10 @@ def user_login(request):
             else:
                 return render(request, 'workshop_app/activation.html')
         else:
-            return render(request, 'workshop_app/login.html', {"form": form})
+            return render(request, 'workshop_app/login_react.html', {"form": form})
     else:
         form = UserLoginForm()
-        return render(request, 'workshop_app/login.html', {"form": form})
+        return render(request, 'workshop_app/login_react.html', {"form": form})
 
 
 def user_logout(request):
@@ -114,9 +120,8 @@ def activate_user(request, key=None):
         elif user.is_authenticated and not user.profile.is_email_verified:
             return render(request, 'workshop_app/activation.html')
         elif user.is_authenticated and user.profile.is_email_verified:
-            status = "2"
-            return render(request, 'workshop_app/activation.html',
-                          {'status': status})
+            # User email already verified - redirect to dashboard
+            return redirect(get_landing_page(user))
         else:
             return redirect(reverse("workshop_app:register"))
 
@@ -151,9 +156,9 @@ def user_register(request):
             return render(request, 'workshop_app/activation.html')
         else:
             if request.user.is_authenticated:
-                return redirect('workshop:view_profile')
+                return redirect('workshop_app:view_profile')
             return render(
-                request, "workshop_app/register.html",
+                request, "workshop_app/register_react.html",
                 {"form": form}
             )
     else:
@@ -162,7 +167,7 @@ def user_register(request):
         elif request.user.is_authenticated:
             return render(request, 'workshop_app/activation.html')
         form = UserRegistrationForm()
-    return render(request, "workshop_app/register.html", {"form": form})
+    return render(request, "workshop_app/register_react.html", {"form": form})
 
 
 # Workshop views

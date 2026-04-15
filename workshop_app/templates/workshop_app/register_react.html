@@ -5,27 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Create a new Workshop Booking account">
-    <title>Register - Workshop Booking</title>
-    
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://unpkg.com">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="{% static 'react/src/styles/auth.css' %}">
+    <title>Create Account - FOSSEE Workshops</title>
     
     <style>
-        /* Minimal overrides for integration */
+        /* Minimal setup for React app */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
+            background: #f5f5f5;
         }
         
         #react-root {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -44,9 +40,26 @@
         // Debug mode
         window.DEBUG = {{ debug|lower }};
         
-        // Redirect to register page on load
+        // Initial page for the app
         window.INITIAL_PAGE = 'register';
     </script>
+
+    <!-- React libraries from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Bundled React auth app (production minified) - CSS embedded in bundle -->
+    <script src="{% static 'react/auth-bundle.min.js' %}"></script>
+
+    <!-- Mount the React app -->
+    <script>
+        if (window.RegisterPage && ReactDOM) {
+            const root = ReactDOM.createRoot(document.getElementById('react-root'));
+            root.render(React.createElement(window.RegisterPage));
+        }
+    </script>
+</body>
+</html>
 
     <!-- React libraries from CDN -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>

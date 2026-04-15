@@ -5,9 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild src/index.jsx --bundle --outfile=dist/auth-bundle.js --external:react --external:react-dom",
-    "build:prod": "esbuild src/index.jsx --bundle --outfile=dist/auth-bundle.min.js --minify --external:react --external:react-dom",
-    "dev": "esbuild src/index.jsx --bundle --outfile=dist/auth-bundle.js --watch --external:react --external:react-dom"
+    "build": "node build.js",
+    "build:prod": "node build.js --prod",
+    "dev": "node build.js && node -e \"console.log('Watching for changes...')\" "
   },
   "dependencies": {
     "react": "^18.2.0",

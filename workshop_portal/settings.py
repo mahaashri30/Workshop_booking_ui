@@ -164,7 +164,38 @@ SHOW_WORKSHOP_STATS = True
 # Create a CMS page as a home page and give the page title here
 HOME_PAGE_TITLE = "home-page-title"
 
-LOGIN_REDIRECT_URL = '/workshop/login'
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# Redirect after successful login to index/dashboard
+LOGIN_REDIRECT_URL = '/workshop/'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
-SESSION_COOKIE_AGE = 3600
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
+
+# Internationalization
+# https://docs.djangoproject.com/en/1.10/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'Asia/Kolkata'
+
+USE_I18N = True
+
+USE_L10N = True
+
+USE_TZ = True
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.10/howto/static-files/
+
+STATIC_URL = '/static/'
+
+STATIC_ROOT = 'workshop_app/static/'
+
+LOGIN_URL = '/workshop/login/'
+
+# Redirect after successful login to index/dashboard
+LOGIN_REDIRECT_URL = '/workshop/'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
